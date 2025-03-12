@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  /**
+   * url      = env("DATABASE_URL")
+   */
+  url      = "file:../banners.sqlite"
+}
+
+//********************
+//** CONTENTS START **
+//********************
+
+model Content {
+  id            Int             @id @default(autoincrement())
+  title         String
+  type          String
+  url           String
+  duration      Int
+  createdAt     Int             @map("created_at")
+  updatedAt     Int             @map("updated_at")
+  contentScreens ContentScreen[]
+
+  @@map("contents")
+}
+
+model Screen {
+  id            Int             @id @default(autoincrement())
+  screenId      String          @map("screen_id")
+  name          String
+  status        String
+  createdAt     Int             @map("created_at")
+  updatedAt     Int             @map("updated_at")
+  contentScreens ContentScreen[]
+
+  @@map("screens")
+}
+
+model ContentScreen {
+  id        Int     @id @default(autoincrement())
+  contentId Int
+  screenId  Int
+  startAt   Int
+  endAt     Int
+  createdAt Int     @map("created_at")
+  updatedAt Int     @map("updated_at")
+  content   Content @relation(fields: [contentId], references: [id])
+  screen    Screen  @relation(fields: [screenId], references: [id])
+
+  @@map("content_screen")
+}
+
+//********************
+//** CONTENTS END   **
+//********************
