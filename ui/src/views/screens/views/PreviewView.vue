@@ -1,20 +1,43 @@
 <script setup lang="ts">
-import { io } from 'socket.io-client'
-import { ref } from 'vue'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-const socket = io('ws://localhost:3001')
+import { useSocket } from '@/stores/socket'
+import { useScreenPreviewStore } from '@/stores/screenPreview'
 
-const screenId = ref<number | undefined>()
+const route = useRoute()
+const io = useSocket()
+const store = useScreenPreviewStore()
 
-socket.on('connect', () => {
-  console.log('connected')
+const credentials = computed(() => ({
+  screenId: Number(route.params.screenId),
+  rol: 'admin',
+}))
+
+onMounted(() => {
+  console.log('disconnecting socket')
+  io.connect(credentials.value)
 })
 
-socket.on('add-content-to-screen', (data) => {
-  screenId.value = data
+watch(
+  () => io.isConnected,
+  (isConnected) => {
+    if (!isConnected) return
+    store.listenEvents()
+    store.setScreenStatus('active')
+    //store.getScreen(Number(route.params.screenId))
+  },
+)
+
+onUnmounted(() => {
+  if (!io.socket) return
+  io.disconnect()
 })
 </script>
 
 <template>
-  <h1>{{ screenId }}</h1>
+  <h1>{{}}</h1>
+  {{ io.isConnected }}
+  {{ JSON.stringify(io.credentials) }}
+  {{ JSON.stringify(store.screenPreview?.status) }}
 </template>

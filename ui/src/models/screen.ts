@@ -1,7 +1,9 @@
+export type ScreenStatus = 'active' | 'disconnected' | 'playing' | 'paused' | 'stopped'
+
 export interface Screen {
   id?: number
   name: string
-  status: string
+  status: 'active' | 'disconnected' | 'playing' | 'paused' | 'stopped'
   createdAt: number
   updatedAt: number
   contentScreens: ContentScreen[]

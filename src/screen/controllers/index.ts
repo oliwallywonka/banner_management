@@ -1,4 +1,4 @@
-import Elysia, { error, NotFoundError, t } from "elysia";
+import Elysia, { t } from "elysia";
 import {
   CreateScreenContentDTO,
   CreateScreenDTO,
@@ -8,17 +8,7 @@ import {
   transformIdDTO,
   transformScreenContentDTO,
 } from "../dto";
-import { ScreenServiceImpl } from "../services";
-import { ScreenRepositoryImpl } from "../repositories/screen.repository";
-import { ContentRepositoryImpl } from "../repositories/content.repository";
-import { prisma, socketServer } from "@src/server/dependencies";
-
-const screenRepository = new ScreenRepositoryImpl(prisma);
-const contentRepository = new ContentRepositoryImpl(prisma);
-const screenService = new ScreenServiceImpl(
-  screenRepository,
-  contentRepository
-);
+import { screenService, socketServer } from "@src/server/dependencies";
 
 export const ScreenController = new Elysia().group("/screens", (app) =>
   app
@@ -66,12 +56,11 @@ export const ScreenController = new Elysia().group("/screens", (app) =>
       "/:id",
       async ({ params, set }) => {
         try {
-          socketServer.io.emit("add-content-to-screen", params.id);
           const screen = await screenService.getById(params.id);
           if (!screen) {
             set.status = 404;
-            return { status: 404, data: null }
-          };
+            return { status: 404, data: null };
+          }
           return {
             status: 200,
             data: screen,
@@ -158,6 +147,8 @@ export const ScreenController = new Elysia().group("/screens", (app) =>
       async ({ params, body }) => {
         try {
           const contentScreen = await screenService.addContent(params.id, body);
+          // TODO: EMIT EVENT FROM SOCKET SERVER
+          socketServer.io.emit("screen:contents:add", contentScreen);
           return {
             status: 200,
             data: contentScreen,

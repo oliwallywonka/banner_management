@@ -60,28 +60,12 @@ export default new (class ScreenService {
     })
   }
 
-  useDelete(id: Ref<number>) {
-    return useMutation({
-      mutationKey: ['screen_delete'],
-      mutationFn: async () => {
-        return await this.service
-          .delete<Response<Screen>>(`screens/${id.value}`)
-          .then((res) => {
-            return res.data
-          })
-          .catch((err) => {
-            throw err
-          })
-      },
-    })
-  }
-
-  useAddContent(id: Ref<number>, form: FormData) {
+  useAddContent() {
     return useMutation({
       mutationKey: ['screen_add_content'],
-      mutationFn: async () => {
+      mutationFn: async (data: { screenId: number; form: FormData }) => {
         return await this.service
-          .post<Response<Screen>>(`screens/${id.value}/content`, form)
+          .post<Response<Screen>>(`screens/${data.screenId}/content`, data.form)
           .then((res) => {
             return res.data
           })

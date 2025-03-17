@@ -3,27 +3,32 @@ import { Radio } from 'lucide-vue-next'
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ref } from 'vue'
-import screenService from '@/services/screen.service'
+import { useScreenStore } from '@/stores/screens'
+import ContentScreenForm from './ContentScreenForm.vue'
 
-const props = defineProps<{
-  screenId: number
-}>()
-
-const { data } = screenService.useGetById(ref(props.screenId))
+const data = useScreenStore()
 </script>
 
 <template>
-  <Card class="md:col-span-2">
+  <Card>
     <CardHeader>
       <CardTitle class="flex gap-2 items-center">
-        <Radio /> Contenido para TV asdfa sdf-as df-a-sd -f-a-sdf
+        <Radio />
+        {{
+          data.currentScreen
+            ? 'Contenido para ' + data.currentScreen?.name
+            : 'Seleccione una pantalla'
+        }}
       </CardTitle>
+      <ContentScreenForm v-if="data.currentScreen" />
       <CardDescription>Lista de contenido disponible</CardDescription>
     </CardHeader>
-    <CardContent class="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
+    <CardContent class="grid md:grid-cols-2 gap-2">
+      <p v-if="data.currentScreen?.contentScreens.length === 0">
+        No hay contenido para este pantalla
+      </p>
       <div
-        v-for="item of data?.contentScreens"
+        v-for="item of data.currentScreen?.contentScreens"
         :key="item.id"
         class="grid grid-rows-[100px,auto,auto] gap-3 items-center p-4 rounded-md border"
       >

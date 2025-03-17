@@ -8,6 +8,7 @@ export interface ScreenService {
   getAll(): Promise<Screen[]>;
   getById(id: number): Promise<Screen | null>;
   save(screen: CreateScreenDTO): Promise<Screen>;
+  update(screenId: number, screen: Prisma.ScreenUpdateInput): Promise<Screen>;
   addContent(
     screenId: number,
     dto: CreateScreenContentDTO
@@ -37,6 +38,13 @@ export class ScreenServiceImpl implements ScreenService {
       updatedAt: getUnixTime(),
     };
     return await this.screenRepository.save(newScreen);
+  }
+
+  async update(
+    screenId: number,
+    screen: Prisma.ScreenUpdateInput
+  ): Promise<Screen> {
+    return await this.screenRepository.update(screenId, screen);
   }
 
   async addContent(
@@ -74,7 +82,7 @@ export class ScreenServiceImpl implements ScreenService {
   }
 
   private async saveFile(file: File): Promise<string> {
-    const fileName = file.name;
+    const fileName = file.name.replaceAll(" ", "_");
     const uuid = Bun.randomUUIDv7();
     const fileComposedName = `${uuid}.${fileName}`;
     const filePath = `./uploads/${fileComposedName}`;

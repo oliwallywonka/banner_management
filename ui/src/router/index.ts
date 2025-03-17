@@ -1,9 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import DashboardView from '@/views/DashboardView.vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes: [
     {
       path: '/',
@@ -12,7 +11,7 @@ const router = createRouter({
         {
           path: '/',
           name: 'dashboard',
-          component: DashboardView,
+          component: () => import('@/views/DashboardView.vue'),
         },
         {
           path: '/screens',
