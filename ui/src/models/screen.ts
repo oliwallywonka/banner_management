@@ -1,31 +1,17 @@
-export type ScreenStatus = 'active' | 'disconnected' | 'playing' | 'paused' | 'stopped'
+export type ScreenStatus =
+  | 'active'
+  | 'disconnected'
+  | 'playing'
+  | 'paused'
+  | 'stopped'
+  | 'unregistered'
 
 export interface Screen {
   id?: number
+  groupId: number
   name: string
-  status: 'active' | 'disconnected' | 'playing' | 'paused' | 'stopped'
-  createdAt: number
-  updatedAt: number
-  contentScreens: ContentScreen[]
-}
-
-export interface ContentScreen {
-  id?: number
-  screenId: number
-  contentId: number
-  startAt: string
-  endAt: string
-  createdAt: number
-  updatedAt: number
-  content: Content
-}
-
-export interface Content {
-  id?: number
-  title: string
-  type: string
-  url: string
-  duration: number
+  code: string
+  status: 'active' | 'disconnected' | 'playing' | 'paused' | 'stopped' | 'unregistered'
   createdAt: number
   updatedAt: number
 }

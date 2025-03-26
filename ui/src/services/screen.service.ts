@@ -59,20 +59,4 @@ export default new (class ScreenService {
       },
     })
   }
-
-  useAddContent() {
-    return useMutation({
-      mutationKey: ['screen_add_content'],
-      mutationFn: async (data: { screenId: number; form: FormData }) => {
-        return await this.service
-          .post<Response<Screen>>(`screens/${data.screenId}/content`, data.form)
-          .then((res) => {
-            return res.data
-          })
-          .catch((err) => {
-            throw err
-          })
-      },
-    })
-  }
 })()

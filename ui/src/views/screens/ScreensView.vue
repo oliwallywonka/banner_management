@@ -2,13 +2,12 @@
 import { onMounted, onUnmounted, watch } from 'vue'
 
 import { useSocket } from '@/stores/socket'
-import { useScreenStore } from '@/stores/screens'
 
-import ContentScreenList from './components/ContentScreenList.vue'
 import ScreenList from './components/ScreenList.vue'
+import { useGroupStore } from '@/stores/groups'
 
 const io = useSocket()
-const data = useScreenStore()
+const data = useGroupStore()
 
 onMounted(() => {
   io.connect({ screenId: -1, rol: 'admin' })
@@ -30,9 +29,5 @@ onUnmounted(() => {
 </script>
 
 <template>
-  {{ JSON.stringify(io.credentials) }}
-  <div class="grid md:grid-cols-2 gap-4 p-4">
-    <ScreenList />
-    <ContentScreenList />
-  </div>
+  <ScreenList />
 </template>

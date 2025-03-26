@@ -1,11 +1,24 @@
-import { ScreenService } from "@src/screen/services";
 import { Server } from "socket.io";
-import { screenService } from "./dependencies";
+import { groupService, screenService } from "./dependencies";
+
+type ScreenEventPayload = Array<Number>;
+
+export const events = {
+  GROUP_LIST: "group:list",
+  GROUP_UNIQUE: "group:unique",
+  GROUP_CREATE: "group:create",
+  GROUP_CONTENT_ADD: "group:contents:add",
+
+  SCREEN_CREATE: "screen:create",
+  SCREEN_UPDATE_STATUS: "screen:update:status",
+  SCREEN_CONTENT_PLAY: "screen:content:play",
+  SCREEN_CONTENT_PAUSE: "screen:content:pause",
+  SCREEN_CONTENT_STOP: "screen:content:stop",
+} as const;
 
 export class SocketServer {
   public io: Server;
   private static instance: SocketServer;
-  private secreenService: ScreenService;
 
   public static getInstance() {
     if (!this.instance) {
@@ -15,7 +28,6 @@ export class SocketServer {
   }
 
   constructor() {
-    this.secreenService = screenService;
     this.io = new Server({
       cors: {
         origin: "*",
@@ -29,6 +41,9 @@ export class SocketServer {
     //TODO: use rooms to join each screen socket with an admin socket to prevent mixing of data
     console.log("SOCKET server started at port 3001");
     this.io.on("connection", (socket) => {
+
+      // TODO: Implement authentication based on screenCode
+
       console.log("connected", socket.handshake.auth);
       console.log(this.io.engine.clientsCount);
 
@@ -42,53 +57,64 @@ export class SocketServer {
             status: "disconnected",
           }
         );
-        this.io.emit("screen:update:status", screen);
+        this.io.emit(events.SCREEN_UPDATE_STATUS, screen);
       });
 
-      socket.on("screen:list", async () => {
+      /********* GROUP EVENTS *********/
+      socket.on(events.GROUP_LIST, async () => {
         try {
-          const services = await screenService.getAll();
-          this.io.emit("screen:list", services);
+          const groups = await groupService.getAll();
+          this.io.emit(events.GROUP_LIST, groups);
+        } catch (error) {
+          console.log(error);
+        }
+      });
+
+      socket.on(events.GROUP_UNIQUE, async (groupId: number) => {
+        try {
+          const contents = await groupService.getById(groupId);
+          this.io.emit(events.GROUP_UNIQUE, contents);
         } catch (error) {}
       });
 
-      socket.on("screen:create", () => {});
-
+      /********* SCREEN EVENTS *********/
       socket.on(
-        "screen:update:status",
+        events.SCREEN_UPDATE_STATUS,
         async (payload: { id: number; status: string }) => {
           try {
             const screen = await screenService.update(payload.id, {
               status: payload.status,
             });
-            this.io.emit("screen:update:status", screen);
+            this.io.emit(events.SCREEN_UPDATE_STATUS, screen);
           } catch (error) {
             console.log(error);
           }
         }
       );
 
-      socket.on("screen:unique", async (screenId: number) => {
-        try {
-          const contents = await screenService.getById(screenId);
-          this.io.emit("screen:unique", contents);
-        } catch (error) {}
-      });
+      socket.on(
+        events.SCREEN_CONTENT_PLAY,
+        (screenList: ScreenEventPayload) => {
+          console.log("play", screenList);
+          this.io.emit(events.SCREEN_CONTENT_PLAY, screenList);
+        }
+      );
 
-      socket.on("screen:content:play", (screenId: number) => {
-        console.log("play", screenId);
-        this.io.emit("screen:content:play", screenId);
-      });
+      socket.on(
+        events.SCREEN_CONTENT_PAUSE,
+        (screenList: ScreenEventPayload) => {
+          console.log("pause", screenList);
+          this.io.emit(events.SCREEN_CONTENT_PAUSE, screenList);
+        }
+      );
 
-      socket.on("screen:content:pause", (screenId) => {
-        console.log("pause", screenId);
-        this.io.emit("screen:content:pause", screenId);
-      });
-
-      socket.on("screen:content:stop", (screenId) => {
-        console.log("stop", screenId);
-        this.io.emit("screen:content:stop", screenId);
-      });
+      socket.on(
+        events.SCREEN_CONTENT_STOP,
+        (screenList: ScreenEventPayload) => {
+          console.log("stop", screenList);
+          this.io.emit(events.SCREEN_CONTENT_STOP, screenList);
+        }
+      );
     });
   }
 }

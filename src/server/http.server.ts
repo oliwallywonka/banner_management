@@ -1,19 +1,38 @@
-import { Elysia, file } from "elysia";
+import { serve } from "bun";
+
+import { Elysia } from "elysia";
 import swagger from "@elysiajs/swagger";
-import { ScreenController } from "@src/screen/controllers";
+import { ScreenController } from "@src/screen/controller";
 import staticPlugin from "@elysiajs/static";
 import cors from "@elysiajs/cors";
+import cron, { Patterns } from "@elysiajs/cron";
+import Cron from "croner";
+
 import VueApp from "../../ui/dist/index.html";
-import { serve } from "bun";
+import { socketServer } from "./dependencies";
+import { GroupController } from "@src/groups/controller";
+
 export class App {
-  private app: Elysia;
+  private app: Elysia<"", any>;
 
   constructor() {
     this.app = new Elysia()
       .use(swagger({ path: "/docs" }))
+      .use(
+        cron({
+          name: "get-dashboard-data",
+          pattern: Patterns.EVERY_10_SECONDS,
+          run() {
+            console.log("Cron job triggered");
+          },
+        })
+      )
       .use(cors({ origin: "*" }))
       .use(staticPlugin({ assets: "uploads", prefix: "/uploads" }))
-      .group("/api/v1", (app) => app.use(ScreenController));
+      .group(
+        "/api/v1",
+        (app) => (app.use(ScreenController), app.use(GroupController))
+      );
   }
 
   public async start() {
@@ -21,7 +40,6 @@ export class App {
       console.log("API Server started on port 3000");
     });
     try {
-
       this.startVueApp();
     } catch (error) {
       console.log(error);
@@ -40,8 +58,12 @@ export class App {
         return new Response(`Internal Error: ${error}\n${error.stack}`, {
           status: 500,
         });
-      }
+      },
     });
     console.log(`VUE server started on port ${server.port}`);
+  }
+
+  private cronFunction(store: Cron) {
+    socketServer.io.emit("cron-job-triggered");
   }
 }
