@@ -28,7 +28,7 @@ export interface InventoryService {
 
 export class InventoryServiceImpl implements InventoryService {
   async getAll(): Promise<Inventory[]> {
-    const res = await fetch("http://190.171.225.68/api/products-inventory");
+    const res = await fetch(process.env.LARAVEL_API || "localhost");
     const data = (await res.json()) as InventoryAPI[];
     return data.map((inventory) => this.parseInventory(inventory));
   }

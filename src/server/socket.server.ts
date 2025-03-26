@@ -40,6 +40,7 @@ export class SocketServer {
   private async startEvents() {
     //TODO: use rooms to join each screen socket with an admin socket to prevent mixing of data
     console.log("SOCKET server started at port 3001");
+    
     this.io.on("connection", (socket) => {
 
       // TODO: Implement authentication based on screenCode

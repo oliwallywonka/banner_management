@@ -4,7 +4,6 @@ import { ref } from 'vue'
 
 interface Credentials {
   screenId: number
-  rol: string
 }
 
 export const useSocket = defineStore('socket', () => {

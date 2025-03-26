@@ -23,6 +23,7 @@ export class ScreenServiceImpl implements ScreenService {
   }
 
   async save(dto: CreateScreenDTO): Promise<Screen> {
+    console.log(dto);
     const newScreen: Prisma.ScreenCreateInput = {
       group: {
         connect: {
