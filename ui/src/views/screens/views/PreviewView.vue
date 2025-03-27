@@ -10,8 +10,7 @@ const io = useSocket()
 const store = useScreenPreviewStore()
 
 const credentials = computed(() => ({
-  screenId: Number(route.params.screenId),
-  rol: 'admin',
+  code: route.params.code as string,
 }))
 
 onMounted(() => {

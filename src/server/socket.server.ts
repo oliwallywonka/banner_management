@@ -1,7 +1,8 @@
 import { Server } from "socket.io";
 import { groupService, screenService } from "./dependencies";
 
-type ScreenEventPayload = Array<Number>;
+type ScreenEventPayload = Array<string>;
+const AUTH_CODE = "-1";
 
 export const events = {
   GROUP_LIST: "group:list",
@@ -34,26 +35,35 @@ export class SocketServer {
         methods: ["GET", "POST"],
       },
     }).listen(3001);
+    this.authSocket();
     this.startEvents();
+  }
+
+  private async authSocket() {
+    this.io.use(async (socket, next) => {
+      const code = socket.handshake.auth.code as string;
+      console.log("SCREEN CODE", code);
+      if (code !== AUTH_CODE) {
+        const screen = await screenService.getByCode(code);
+        if (!screen) {
+          return;
+        }
+      }
+      next();
+    });
   }
 
   private async startEvents() {
     //TODO: use rooms to join each screen socket with an admin socket to prevent mixing of data
     console.log("SOCKET server started at port 3001");
-    
+
     this.io.on("connection", (socket) => {
-
-      // TODO: Implement authentication based on screenCode
-
-      console.log("connected", socket.handshake.auth);
-      console.log(this.io.engine.clientsCount);
 
       socket.on("disconnect", async () => {
         // TODO: verify if there are another client screen connected based on socket.handshake.auth
-        console.log("disconnect", socket.handshake.auth);
-        if (socket.handshake.auth.screenId === -1) return;
-        const screen = await screenService.update(
-          socket.handshake.auth.screenId,
+        if (socket.handshake.auth.code === AUTH_CODE) return;
+        const screen = await screenService.updateByCode(
+          socket.handshake.auth.code,
           {
             status: "disconnected",
           }
@@ -81,9 +91,9 @@ export class SocketServer {
       /********* SCREEN EVENTS *********/
       socket.on(
         events.SCREEN_UPDATE_STATUS,
-        async (payload: { id: number; status: string }) => {
+        async (payload: { code: string; status: string }) => {
           try {
-            const screen = await screenService.update(payload.id, {
+            const screen = await screenService.updateByCode(payload.code, {
               status: payload.status,
             });
             this.io.emit(events.SCREEN_UPDATE_STATUS, screen);

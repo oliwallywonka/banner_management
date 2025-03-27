@@ -12,6 +12,13 @@ export interface Screen {
   name: string
   code: string
   status: 'active' | 'disconnected' | 'playing' | 'paused' | 'stopped' | 'unregistered'
-  createdAt: number
-  updatedAt: number
+  createdAt?: number
+  updatedAt?: number
+}
+
+export interface CreateScreen {
+  groupId: number;
+  screenId: string;
+  name: string;
+  status: ScreenStatus;
 }

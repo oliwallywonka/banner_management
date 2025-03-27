@@ -4,9 +4,11 @@ import { getUnixTime } from "@src/helpers/date";
 export interface ScreenRepository {
   getAll(): Promise<Screen[]>;
   getById(id: number): Promise<Screen | null>;
+  getByCode(code: string): Promise<Screen | null>;
   getByGroupId(groupId: number): Promise<Screen[]>;
   save(Screen: Prisma.ScreenCreateInput): Promise<Screen>;
   update(screenId: number, screen: Prisma.ScreenUpdateInput): Promise<Screen>;
+  updateByCode(code: string, screen: Prisma.ScreenUpdateInput): Promise<Screen[]>;
   delete(screenId: number): Promise<void>;
 }
 
@@ -23,6 +25,17 @@ export class ScreenRepositoryImpl implements ScreenRepository {
       where: { id },
     });
     return screen;
+  }
+
+  async getByCode(code: string): Promise<Screen | null> {
+    if (!code) return null;
+    const screens = await this.db.screen.findMany({
+      where: {
+        code,
+      },
+    });
+    if (screens.length === 0) return null;
+    return screens[0];
   }
 
   async getByGroupId(groupId: number): Promise<Screen[]> {
@@ -45,6 +58,14 @@ export class ScreenRepositoryImpl implements ScreenRepository {
       where: { id },
     });
     return updatedScreen;
+  }
+
+  async updateByCode(code: string, screen: Prisma.ScreenUpdateInput): Promise<Screen[]> {
+    const screens = await this.db.screen.updateManyAndReturn({
+      data: { ...screen, updatedAt: getUnixTime() },
+      where: { code },
+    });
+    return screens;
   }
 
   async delete(screenId: number): Promise<void> {

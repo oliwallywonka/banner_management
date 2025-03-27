@@ -19,7 +19,7 @@ const router = createRouter({
           component: () => import('@/views/screens/ScreensView.vue'),
         },
         {
-          path: '/screens/:screenId',
+          path: '/screens/:code',
           name: 'screen',
           component: () => import('@/views/screens/views/PreviewView.vue'),
         },

@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Monitor, Pause, Play, ScreenShare, Square, RotateCw, Plus } from 'lucide-vue-next'
+import { Monitor, Pause, Play, ScreenShare, Square, RotateCw } from 'lucide-vue-next'
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import type { Screen } from '@/models/screen'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import GroupForm from './GroupForm.vue'
 import GroupContentList from './GroupContentList.vue'
 import { useGroupStore } from '@/stores/groups'
-import type { Screen } from '@/models/screen'
+import ScreenForm from './ScreenForm.vue'
 
 const data = useGroupStore()
 
@@ -16,15 +17,20 @@ const defaultTab = computed(() => {
   return data.groups.length > 0 ? data.groups[0].id! : 1
 })
 
-function getScreensIds(screens: Screen[]) {
-  return screens.map((screen) => screen.id!)
+function getScreensCodes(screens: Screen[]) {
+  return screens.map((screen) => screen.code)
 }
 </script>
 
 <template>
   <Tabs class="p-4" :default-tab="defaultTab">
     <TabsList class="grid w-full grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-2">
-      <TabsTrigger v-for="group in data.groups" :key="group.id" :value="group.id!" data-state="active">
+      <TabsTrigger
+        v-for="group in data.groups"
+        :key="group.id"
+        :value="group.id!"
+        data-state="active"
+      >
         {{ group.name }}
       </TabsTrigger>
       <GroupForm />
@@ -42,19 +48,17 @@ function getScreensIds(screens: Screen[]) {
           </CardTitle>
           <CardDescription>Lista de pantallas registradas</CardDescription>
           <div class="flex gap-2 col-start-2">
-            <Button @click="() => data.refreshList()">
-              <Plus />
-            </Button>
+            <ScreenForm :group="group" />
             <Button @click="() => data.refreshList()">
               <RotateCw />
             </Button>
-            <Button @click="() => data.playScreens(getScreensIds(group.screens!))">
+            <Button @click="() => data.playScreens(getScreensCodes(group.screens!))">
               <Play />
             </Button>
-            <Button @click="() => data.pauseScreens(getScreensIds(group.screens!))">
+            <Button @click="() => data.pauseScreens(getScreensCodes(group.screens!))">
               <Pause />
             </Button>
-            <Button @click="() => data.stopScreens(getScreensIds(group.screens!))">
+            <Button @click="() => data.stopScreens(getScreensCodes(group.screens!))">
               <Square />
             </Button>
           </div>
@@ -81,7 +85,7 @@ function getScreensIds(screens: Screen[]) {
                 <span class="font-bold">Código: {{ item.code }}</span>
               </div>
             </div>
-            <RouterLink :class="buttonVariants()" :to="`/screens/${item.id}`">Preview</RouterLink>
+            <RouterLink :class="buttonVariants()" :to="`/screens/${item.code}`">Preview</RouterLink>
           </div>
         </CardContent>
       </Card>

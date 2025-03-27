@@ -68,19 +68,19 @@ export const useGroupStore = defineStore('groupSocket', () => {
     })
   }
 
-  function playScreens(screenIds: number[]) {
+  function playScreens(screenIds: string[]) {
     if (!io.socket) return
     if (!io.credentials) return
     io.socket.emit(events.SCREEN_CONTENT_PLAY, screenIds)
   }
 
-  function pauseScreens(screenIds: number[]) {
+  function pauseScreens(screenIds: string[]) {
     if (!io.socket) return
     if (!io.credentials) return
     io.socket.emit(events.SCREEN_CONTENT_PAUSE, screenIds)
   }
 
-  function stopScreens(screenIds: number[]) {
+  function stopScreens(screenIds: string[]) {
     if (!io.socket) return
     if (!io.credentials) return
     io.socket.emit(events.SCREEN_CONTENT_STOP, screenIds)

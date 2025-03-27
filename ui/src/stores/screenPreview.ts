@@ -15,32 +15,32 @@ export const useScreenPreviewStore = defineStore('screenPreview', () => {
 
     io.socket.on(events.SCREEN_UPDATE_STATUS, (data: Screen) => {
       console.log('update status')
-      if (data.id !== io.credentials!.screenId) return
+      if (data.code !== io.credentials!.code) return
       // AL REALIZAR UN UPDATE DE STATUS OBTENEMOS EL CONTENIDO
       screenPreview.value = data
     })
 
-    io.socket?.on(events.SCREEN_CONTENT_PLAY, (screensIds: number[]) => {
-      console.log('PLAYING', screensIds)
-      if (!screensIds.includes(io.credentials!.screenId)) return
+    io.socket?.on(events.SCREEN_CONTENT_PLAY, (screensCodes: string[]) => {
+      console.log('PLAYING', screensCodes)
+      if (!screensCodes.includes(io.credentials!.code)) return
       setScreenStatus('playing')
     })
 
-    io.socket?.on(events.SCREEN_CONTENT_PAUSE, (screensIds: number[]) => {
-      console.log('PAUSED', screensIds)
-      if (!screensIds.includes(io.credentials!.screenId)) return
+    io.socket?.on(events.SCREEN_CONTENT_PAUSE, (screensCodes: string[]) => {
+      console.log('PAUSED', screensCodes)
+      if (!screensCodes.includes(io.credentials!.code)) return
       setScreenStatus('paused')
     })
 
-    io.socket?.on(events.SCREEN_CONTENT_STOP, (screensIds: number[]) => {
-      console.log('STOPPED', screensIds)
-      if (!screensIds.includes(io.credentials!.screenId)) return
+    io.socket?.on(events.SCREEN_CONTENT_STOP, (screensCodes: string[]) => {
+      console.log('STOPPED', screensCodes)
+      if (!screensCodes.includes(io.credentials!.code)) return
       setScreenStatus('stopped')
     })
   }
 
   function setScreenStatus(status: ScreenStatus = 'active') {
-    io.socket?.emit(events.SCREEN_UPDATE_STATUS, { id: io.credentials!.screenId, status })
+    io.socket?.emit(events.SCREEN_UPDATE_STATUS, { code: io.credentials!.code, status })
   }
 
   return {

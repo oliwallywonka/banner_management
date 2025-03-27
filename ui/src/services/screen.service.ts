@@ -1,7 +1,7 @@
 import type { AxiosInstance } from 'axios'
 
 import ApiClient from './api'
-import type { Screen } from '@/models/screen'
+import type { CreateScreen, Screen } from '@/models/screen'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import type { Response } from '@/models/response'
 import type { Ref } from 'vue'
@@ -47,7 +47,7 @@ export default new (class ScreenService {
   useCreate() {
     return useMutation({
       mutationKey: ['screen_create'],
-      mutationFn: async (payload: Screen) => {
+      mutationFn: async (payload: CreateScreen) => {
         return await this.service
           .post<Screen>('screens', payload)
           .then((res) => {

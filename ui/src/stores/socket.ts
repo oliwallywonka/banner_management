@@ -3,7 +3,7 @@ import { io, Socket } from 'socket.io-client'
 import { ref } from 'vue'
 
 interface Credentials {
-  screenId: number
+  code: string
 }
 
 export const useSocket = defineStore('socket', () => {

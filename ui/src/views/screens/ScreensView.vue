@@ -10,7 +10,7 @@ const io = useSocket()
 const data = useGroupStore()
 
 onMounted(() => {
-  io.connect({ screenId: -1, rol: 'admin' })
+  io.connect({ code: '-1' })
 })
 
 watch(

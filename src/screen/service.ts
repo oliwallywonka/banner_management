@@ -7,8 +7,10 @@ import { generateCode } from "@src/helpers/code";
 export interface ScreenService {
   getAll(): Promise<Screen[]>;
   getById(id: number): Promise<Screen | null>;
+  getByCode(code: string): Promise<Screen | null>;
   save(screen: CreateScreenDTO): Promise<Screen>;
   update(screenId: number, screen: Prisma.ScreenUpdateInput): Promise<Screen>;
+  updateByCode(code: string, screen: Prisma.ScreenUpdateInput): Promise<Screen>;
 }
 
 export class ScreenServiceImpl implements ScreenService {
@@ -22,8 +24,11 @@ export class ScreenServiceImpl implements ScreenService {
     return await this.screenRepository.getById(id);
   }
 
+  async getByCode(code: string): Promise<Screen | null> {
+    return await this.screenRepository.getByCode(code);
+  }
+
   async save(dto: CreateScreenDTO): Promise<Screen> {
-    console.log(dto);
     const newScreen: Prisma.ScreenCreateInput = {
       group: {
         connect: {
@@ -45,5 +50,14 @@ export class ScreenServiceImpl implements ScreenService {
     screen: Prisma.ScreenUpdateInput
   ): Promise<Screen> {
     return await this.screenRepository.update(screenId, screen);
+  }
+
+  async updateByCode(
+    code: string,
+    screen: Prisma.ScreenUpdateInput
+  ): Promise<Screen> {
+    const screens = await this.screenRepository.updateByCode(code, screen);
+    if (screens.length === 0) throw new Error('Screen not found');
+    return screens[0];
   }
 }
