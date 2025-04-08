@@ -30,6 +30,11 @@ export class GroupRepositoryImpl implements GroupRespository {
   async getById(id: number): Promise<Group | null> {
     return await this.db.group.findUnique({
       where: { id },
+      include: {
+        groupContents: {
+          include: { content: true },
+        },
+      },
     });
   }
 

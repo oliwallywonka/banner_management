@@ -28,6 +28,14 @@ watch(
   },
 )
 
+watch(
+  () => store.screenPreview,
+  (screenPreview) => {
+    if (!screenPreview) return
+    store.getCurrentGroup()
+  },
+)
+
 onUnmounted(() => {
   if (!io.socket) return
   io.disconnect()
@@ -38,5 +46,6 @@ onUnmounted(() => {
   <h1>{{}}</h1>
   {{ io.isConnected }}
   {{ JSON.stringify(io.credentials) }}
-  {{ JSON.stringify(store.screenPreview?.status) }}
+  {{ JSON.stringify(store.screenPreview) }}
+  {{ JSON.stringify(store.currentGroup) }}
 </template>

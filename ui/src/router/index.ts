@@ -18,11 +18,7 @@ const router = createRouter({
           name: 'screens',
           component: () => import('@/views/screens/ScreensView.vue'),
         },
-        {
-          path: '/screens/:code',
-          name: 'screen',
-          component: () => import('@/views/screens/views/PreviewView.vue'),
-        },
+        
         {
           path: '/content',
           name: 'content',
@@ -34,6 +30,11 @@ const router = createRouter({
           component: () => import('@/views/ProfileView.vue'),
         },
       ],
+    },
+    {
+      path: '/screens/:code',
+      name: 'screen',
+      component: () => import('@/views/screens/views/PreviewView.vue'),
     },
   ],
 })
